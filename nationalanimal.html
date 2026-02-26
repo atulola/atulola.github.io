@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Animal of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+</script>
+</head>
+<body>
+<h1>National Animal - Royal Bengal Tiger</h1>
+<img src="images/tiger.jpg" width="100%">
+<p id="text">
+The Royal Bengal Tiger is the national animal of India. It represents strength, power and grace.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+</body>
+</html>
