@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f9f9f9;
+  color: #333;
+}
+header {
+  background: #006cb7;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+.container {
+  padding: 1rem;
+}
+.symbol-card {
+  background: white;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+.symbol-card img {
+  width: 100%;
+  border-radius: 6px;
+}
+.btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #006cb7;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}
+@media (min-width: 768px) {
+  .symbol-card {
+    display: flex;
+    gap: 1rem;
+  }
+  .symbol-card img {
+    width: 40%;
+  }
+}
