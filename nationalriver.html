@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National River of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+</script>
+</head>
+<body>
+<h1>National River - Ganga</h1>
+<img src="images/ganga.jpg" width="100%">
+<p id="text">
+The Ganga River is the national river of India. It is sacred and supports millions of people.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+</body>
+</html>
