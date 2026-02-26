@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Flower of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+</script>
+</head>
+<body>
+<h1>National Flower - Lotus</h1>
+<img src="images/lotus.jpg" width="100%">
+<p id="text">
+The Lotus is the national flower of India. It symbolizes purity, beauty and knowledge.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+</body>
+</html>
