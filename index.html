@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Symbols of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;margin:0;background:#f4f4f4}
+header{background:#ff9933;color:white;padding:15px;text-align:center}
+.card{background:white;margin:15px;padding:15px;border-radius:8px;box-shadow:0 0 5px gray}
+img{width:100%;border-radius:6px}
+a{text-decoration:none;color:#0066cc;font-weight:bold}
+button{margin-top:10px;padding:6px 10px}
+</style>
+<script>
+function speakText(id){
+let text=document.getElementById(id).innerText;
+let msg=new SpeechSynthesisUtterance(text);
+speechSynthesis.speak(msg);
+}
+function translateHindi(){
+alert("Use Google Chrome translate option for full Hindi translation.");
+}
+</script>
+</head>
+<body>
+
+<header>
+<h1>🇮🇳 National Symbols of India</h1>
+<button onclick="translateHindi()">Translate to Hindi</button>
+</header>
+
+<div class="card">
+<img src="images/flag.jpg">
+<h2><a href="nationalflag.html">National Flag</a></h2>
+<p id="flag">The tricolour flag represents courage, peace and prosperity.</p>
+<button onclick="speakText('flag')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/emblem.jpg">
+<h2><a href="nationalemblem.html">National Emblem</a></h2>
+<p id="emblem">The Lion Capital of Ashoka symbolizes power and unity.</p>
+<button onclick="speakText('emblem')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/tiger.jpg">
+<h2><a href="nationalanimal.html">National Animal</a></h2>
+<p id="animal">The Royal Bengal Tiger represents strength.</p>
+<button onclick="speakText('animal')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/peacock.jpg">
+<h2><a href="nationalbird.html">National Bird</a></h2>
+<p id="bird">The Indian Peacock symbolizes grace and beauty.</p>
+<button onclick="speakText('bird')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/lotus.jpg">
+<h2><a href="nationalflower.html">National Flower</a></h2>
+<p id="flower">The Lotus symbolizes purity and enlightenment.</p>
+<button onclick="speakText('flower')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/banyan.jpg">
+<h2><a href="nationaltree.html">National Tree</a></h2>
+<p id="tree">The Banyan tree symbolizes longevity.</p>
+<button onclick="speakText('tree')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/mango.jpg">
+<h2><a href="nationalfruit.html">National Fruit</a></h2>
+<p id="fruit">The Mango is known as the king of fruits.</p>
+<button onclick="speakText('fruit')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/ganga.jpg">
+<h2><a href="nationalriver.html">National River</a></h2>
+<p id="river">The Ganga is India's most sacred river.</p>
+<button onclick="speakText('river')">🔊 Listen</button>
+</div>
+
+<div class="card">
+<img src="images/anthem.jpg">
+<h2><a href="nationalanthem.html">National Anthem</a></h2>
+<p id="anthem">Jana Gana Mana is the national anthem of India.</p>
+<button onclick="speakText('anthem')">🔊 Listen</button>
+</div>
+
+</body>
+  </html>
