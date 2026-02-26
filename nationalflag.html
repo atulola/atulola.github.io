@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Flag of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+function translateHindi(){alert("Use browser translate option.");}
+</script>
+</head>
+<body>
+<h1>National Flag of India 🇮🇳</h1>
+<img src="images/flag.jpg" width="100%">
+<p id="text">
+The national flag of India is called the Tiranga. It has three colors: saffron for courage, white for peace, and green for prosperity. The Ashoka Chakra in the center represents righteousness and progress.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+<button onclick="translateHindi()">Translate</button>
+</body>
+</html>
