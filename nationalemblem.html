@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Emblem of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+</script>
+</head>
+<body>
+<h1>National Emblem of India</h1>
+<img src="images/emblem.jpg" width="100%">
+<p id="text">
+The national emblem is the Lion Capital of Ashoka. It features four Asiatic lions standing back to back. Below it is written Satyameva Jayate which means Truth Alone Triumphs.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+</body>
+</html>
