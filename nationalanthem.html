@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>National Anthem of India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function speakText(){speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById("text").innerText));}
+</script>
+</head>
+<body>
+<h1>National Anthem - Jana Gana Mana</h1>
+<img src="images/anthem.jpg" width="100%">
+<p id="text">
+Jana Gana Mana is the national anthem of India. It was written by Rabindranath Tagore.
+</p>
+<button onclick="speakText()">🔊 Listen</button>
+</body>
+</html>
