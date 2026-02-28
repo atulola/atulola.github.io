@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ultra Cinematic 3D Solar System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:black;
+    font-family:Arial;
+}
+#ui{
+    position:absolute;
+    top:15px;
+    left:15px;
+    color:white;
+    z-index:10;
+}
+input{ width:220px; }
+</style>
+</head>
+<body>
+
+<div id="ui">
+    <h2>Solar System Speed Control</h2>
+    <label>Orbit Speed</label><br>
+    <input type="range" id="speedControl" min="0.1" max="5" step="0.1" value="1">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+const scene = new THREE.Scene();
+
+// 🌌 ULTRA CINEMATIC GALAXY BACKGROUND
+const loader = new THREE.TextureLoader();
+loader.load(
+'https://threejs.org/examples/textures/space.jpg',
+function(texture){
+    const bgGeo = new THREE.SphereGeometry(2000,64,64);
+    const bgMat = new THREE.MeshBasicMaterial({
+        map:texture,
+        side:THREE.BackSide
+    });
+    const galaxy = new THREE.Mesh(bgGeo,bgMat);
+    scene.add(galaxy);
+});
+
+const camera = new THREE.PerspectiveCamera(
+75, window.innerWidth/window.innerHeight, 0.1, 5000
+);
+camera.position.set(0,180,500);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera,renderer.domElement);
+
+// ⭐ Deep Star Field
+const starGeo = new THREE.BufferGeometry();
+let starVertices = [];
+for(let i=0;i<30000;i++){
+    starVertices.push(
+        THREE.MathUtils.randFloatSpread(4000),
+        THREE.MathUtils.randFloatSpread(4000),
+        THREE.MathUtils.randFloatSpread(4000)
+    );
+}
+starGeo.setAttribute('position',
+new THREE.Float32BufferAttribute(starVertices,3));
+scene.add(new THREE.Points(
+starGeo,
+new THREE.PointsMaterial({color:0xffffff})
+));
+
+// 🌞 GLOWING SUN
+const sun = new THREE.Mesh(
+new THREE.SphereGeometry(30,64,64),
+new THREE.MeshBasicMaterial({color:0xffcc00})
+);
+scene.add(sun);
+
+// Sun glow pulse
+const glow = new THREE.Mesh(
+new THREE.SphereGeometry(45,64,64),
+new THREE.MeshBasicMaterial({
+color:0xffaa00,
+transparent:true,
+opacity:0.5
+})
+);
+scene.add(glow);
+
+const light = new THREE.PointLight(0xffffff,3,5000);
+scene.add(light);
+
+// 🌍 PLANETS
+let planets=[];
+
+function createPlanet(size,dist,color,speed,name){
+const geo=new THREE.SphereGeometry(size,32,32);
+const mat=new THREE.MeshStandardMaterial({color});
+const mesh=new THREE.Mesh(geo,mat);
+
+const pivot=new THREE.Object3D();
+scene.add(pivot);
+pivot.add(mesh);
+mesh.position.x=dist;
+mesh.userData={name};
+
+planets.push({mesh,pivot,speed});
+return mesh;
+}
+
+function createMoon(parent,size,dist,speed){
+const geo=new THREE.SphereGeometry(size,16,16);
+const mat=new THREE.MeshStandardMaterial({color:0xaaaaaa});
+const moon=new THREE.Mesh(geo,mat);
+
+const pivot=new THREE.Object3D();
+parent.add(pivot);
+pivot.add(moon);
+moon.position.x=dist;
+
+planets.push({mesh:moon,pivot,speed});
+}
+
+// 🪐 Animated Ring Particles
+function createRingParticles(parent, inner, outer, count, color){
+const geometry=new THREE.BufferGeometry();
+let vertices=[];
+for(let i=0;i<count;i++){
+let angle=Math.random()*Math.PI*2;
+let radius=inner+Math.random()*(outer-inner);
+vertices.push(
+Math.cos(angle)*radius,
+(Math.random()-0.5)*2,
+Math.sin(angle)*radius
+);
+}
+geometry.setAttribute('position',
+new THREE.Float32BufferAttribute(vertices,3));
+
+const material=new THREE.PointsMaterial({
+color:color,
+size:1.5
+});
+const ring=new THREE.Points(geometry,material);
+ring.rotation.x=Math.PI/2.5;
+parent.add(ring);
+return ring;
+}
+
+// Planets
+const mercury=createPlanet(5,60,0xaaaaaa,0.04,"mercury2.html");
+const venus=createPlanet(8,95,0xffaa00,0.015,"venus2.html");
+const earth=createPlanet(9,135,0x2233ff,0.01,"earth2.html");
+const mars=createPlanet(7,175,0xff3300,0.008,"mars2.html");
+const jupiter=createPlanet(22,230,0xffaa88,0.002,"jupiter2.html");
+const saturn=createPlanet(20,300,0xffddaa,0.0009,"saturn2.html");
+const uranus=createPlanet(15,360,0x66ffff,0.0004,"uranus2.html");
+const neptune=createPlanet(15,420,0x3333ff,0.0001,"neptune2.html");
+
+// Rings
+const saturnRing=createRingParticles(saturn,28,45,4000,0xd2b48c);
+const uranusRing=createRingParticles(uranus,18,25,2000,0x99ffff);
+const jupiterRing=createRingParticles(jupiter,24,28,1500,0xffffff);
+const neptuneRing=createRingParticles(neptune,18,22,1500,0x9999ff);
+
+// Moons
+createMoon(earth,2,18,0.05);
+createMoon(mars,1.5,14,0.06);
+createMoon(jupiter,3,35,0.04);
+createMoon(saturn,3,50,0.03);
+
+// 🪨 Asteroid Belt
+for(let i=0;i<1000;i++){
+let geo=new THREE.SphereGeometry(1,6,6);
+let mat=new THREE.MeshStandardMaterial({color:0x888888});
+let asteroid=new THREE.Mesh(geo,mat);
+let angle=Math.random()*Math.PI*2;
+let radius=210+Math.random()*30;
+asteroid.position.set(
+Math.cos(angle)*radius,
+(Math.random()-0.5)*20,
+Math.sin(angle)*radius
+);
+scene.add(asteroid);
+}
+
+// ☄️ Comet
+const comet=new THREE.Mesh(
+new THREE.SphereGeometry(4,16,16),
+new THREE.MeshBasicMaterial({color:0xffffff})
+);
+scene.add(comet);
+let cometAngle=0;
+
+// 🔥 Meteors
+for(let i=0;i<80;i++){
+let geo=new THREE.SphereGeometry(1.2,8,8);
+let mat=new THREE.MeshBasicMaterial({color:0xffaa00});
+let meteor=new THREE.Mesh(geo,mat);
+meteor.position.set(
+THREE.MathUtils.randFloatSpread(3000),
+THREE.MathUtils.randFloatSpread(2000),
+THREE.MathUtils.randFloatSpread(3000)
+);
+scene.add(meteor);
+}
+
+// Speed Control
+let globalSpeed=1;
+document.getElementById("speedControl")
+.addEventListener("input",function(){
+globalSpeed=parseFloat(this.value);
+});
+
+// Click Navigation
+window.addEventListener("click",function(e){
+const mouse=new THREE.Vector2(
+(e.clientX/window.innerWidth)*2-1,
+-(e.clientY/window.innerHeight)*2+1
+);
+const raycaster=new THREE.Raycaster();
+raycaster.setFromCamera(mouse,camera);
+const intersects=raycaster.intersectObjects(
+planets.map(p=>p.mesh)
+);
+if(intersects.length>0){
+window.location.href=intersects[0].object.userData.name;
+}
+});
+
+// Animation
+function animate(){
+requestAnimationFrame(animate);
+
+glow.scale.setScalar(1+Math.sin(Date.now()*0.002)*0.05);
+
+planets.forEach(p=>{
+p.pivot.rotation.y+=p.speed*globalSpeed;
+p.mesh.rotation.y+=0.01;
+});
+
+saturnRing.rotation.z+=0.0005;
+uranusRing.rotation.z+=0.0004;
+jupiterRing.rotation.z+=0.0003;
+neptuneRing.rotation.z+=0.0003;
+
+cometAngle+=0.006;
+comet.position.set(
+Math.cos(cometAngle)*600,
+100,
+Math.sin(cometAngle)*600
+);
+
+controls.update();
+renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",function(){
+camera.aspect=window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
+
+</body>
+</html>
