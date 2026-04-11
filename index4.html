@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Indian Truck Simulator (Web Demo)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 5px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background: #ffffffcc;
+        }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <button ontouchstart="moveForward=true" ontouchend="moveForward=false">⬆ Accelerate</button>
+    <button ontouchstart="moveBackward=true" ontouchend="moveBackward=false">⬇ Brake</button>
+    <br>
+    <button ontouchstart="turnLeft=true" ontouchend="turnLeft=false">⬅ Left</button>
+    <button ontouchstart="turnRight=true" ontouchend="turnRight=false">➡ Right</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb); // sky blue
+
+// Camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Road
+const roadGeometry = new THREE.PlaneGeometry(300, 300);
+const roadMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+const road = new THREE.Mesh(roadGeometry, roadMaterial);
+road.rotation.x = -Math.PI / 2;
+scene.add(road);
+
+// Lane line
+const lineGeometry = new THREE.BoxGeometry(1, 0.1, 20);
+const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+for (let i = -100; i < 100; i += 30) {
+    let line = new THREE.Mesh(lineGeometry, lineMaterial);
+    line.position.set(0, 0.05, i);
+    scene.add(line);
+}
+
+// Truck
+const truck = new THREE.Mesh(
+    new THREE.BoxGeometry(2, 2, 4),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+);
+truck.position.y = 1;
+scene.add(truck);
+
+// Camera position
+camera.position.set(0, 5, -10);
+
+// Controls
+let moveForward = false;
+let moveBackward = false;
+let turnLeft = false;
+let turnRight = false;
+
+let speed = 0;
+let maxSpeed = 0.6;
+
+// Animation
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Speed control
+    if (moveForward) speed = Math.min(speed + 0.02, maxSpeed);
+    else if (moveBackward) speed = Math.max(speed - 0.02, -maxSpeed);
+    else speed *= 0.95;
+
+    // Turning
+    if (turnLeft) truck.rotation.y += 0.04;
+    if (turnRight) truck.rotation.y -= 0.04;
+
+    // Movement
+    truck.position.x -= Math.sin(truck.rotation.y) * speed;
+    truck.position.z -= Math.cos(truck.rotation.y) * speed;
+
+    // Camera follow
+    camera.position.x = truck.position.x + Math.sin(truck.rotation.y) * 10;
+    camera.position.z = truck.position.z + Math.cos(truck.rotation.y) * 10;
+    camera.position.y = truck.position.y + 5;
+
+    camera.lookAt(truck.position);
+
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// Resize fix
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
+</body>
+</html>
