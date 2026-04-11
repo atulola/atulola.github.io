@@ -1,37 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Indian Truck Simulator (Web Demo)</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; }
+  <title>Indian Truck Simulator (Advanced Web Demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        #controls {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-        }
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; font-family: Arial; }
 
-        button {
-            padding: 12px 18px;
-            margin: 5px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: none;
-            background: #ffffffcc;
-        }
-    </style>
+    #ui {
+      position: absolute; inset: 0; pointer-events: none;
+      color: #fff;
+    }
+
+    /* HUD */
+    #hud {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px; border-radius: 10px;
+      font-size: 14px;
+    }
+
+    /* Pedals */
+    #pedals {
+      position: absolute; right: 10px; bottom: 10px;
+      pointer-events: auto;
+    }
+
+    .btn {
+      display: block;
+      margin: 6px;
+      padding: 14px 18px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background: #ffffffcc;
+    }
+
+    /* Steering wheel */
+    #wheel {
+      position: absolute; left: 10px; bottom: 10px;
+      width: 120px; height: 120px;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      pointer-events: auto;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #wheelInner {
+      width: 60px; height: 60px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+    }
+
+    /* Horn */
+    #horn {
+      position: absolute; top: 10px; right: 10px;
+      pointer-events: auto;
+    }
+  </style>
 </head>
 <body>
 
-<div id="controls">
-    <button ontouchstart="moveForward=true" ontouchend="moveForward=false">⬆ Accelerate</button>
-    <button ontouchstart="moveBackward=true" ontouchend="moveBackward=false">⬇ Brake</button>
-    <br>
-    <button ontouchstart="turnLeft=true" ontouchend="turnLeft=false">⬅ Left</button>
-    <button ontouchstart="turnRight=true" ontouchend="turnRight=false">➡ Right</button>
+<div id="ui">
+  <div id="hud">
+    Speed: <span id="speed">0</span> <br>
+    Fuel: <span id="fuel">100</span>% <br>
+    Mission: Deliver to Dhaba
+  </div>
+
+  <div id="horn">
+    <button class="btn" onclick="playHorn()">🔊 Horn</button>
+  </div>
+
+  <div id="wheel">
+    <div id="wheelInner"></div>
+  </div>
+
+  <div id="pedals">
+    <button class="btn" ontouchstart="acc=true" ontouchend="acc=false">⬆</button>
+    <button class="btn" ontouchstart="brake=true" ontouchend="brake=false">⬇</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -39,87 +87,130 @@
 <script>
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // sky blue
+scene.background = new THREE.Color(0x87ceeb);
 
 // Camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Light
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5,10,5);
+scene.add(light);
+
 // Road
-const roadGeometry = new THREE.PlaneGeometry(300, 300);
-const roadMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
-const road = new THREE.Mesh(roadGeometry, roadMaterial);
-road.rotation.x = -Math.PI / 2;
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(500,500),
+  new THREE.MeshPhongMaterial({ color: 0x333333 })
+);
+road.rotation.x = -Math.PI/2;
 scene.add(road);
-
-// Lane line
-const lineGeometry = new THREE.BoxGeometry(1, 0.1, 20);
-const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
-for (let i = -100; i < 100; i += 30) {
-    let line = new THREE.Mesh(lineGeometry, lineMaterial);
-    line.position.set(0, 0.05, i);
-    scene.add(line);
-}
 
 // Truck
 const truck = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 2, 4),
-    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+  new THREE.BoxGeometry(2,2,4),
+  new THREE.MeshPhongMaterial({ color: 0xff0000 })
 );
 truck.position.y = 1;
 scene.add(truck);
 
-// Camera position
-camera.position.set(0, 5, -10);
+// Dhaba (mission target)
+const dhaba = new THREE.Mesh(
+  new THREE.BoxGeometry(5,3,5),
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 })
+);
+dhaba.position.set(0,1.5,50);
+scene.add(dhaba);
+
+// Traffic
+let traffic = [];
+for(let i=0;i<5;i++){
+  let car = new THREE.Mesh(
+    new THREE.BoxGeometry(2,1,3),
+    new THREE.MeshPhongMaterial({ color: 0x0000ff })
+  );
+  car.position.set((Math.random()*20)-10,1,(Math.random()*100)-50);
+  scene.add(car);
+  traffic.push(car);
+}
 
 // Controls
-let moveForward = false;
-let moveBackward = false;
-let turnLeft = false;
-let turnRight = false;
+let acc=false, brake=false;
+let speed=0, fuel=100;
+let steer=0;
 
-let speed = 0;
-let maxSpeed = 0.6;
+// Steering (touch drag)
+const wheel = document.getElementById("wheel");
+let dragging=false;
+
+wheel.addEventListener("touchstart", ()=>dragging=true);
+wheel.addEventListener("touchend", ()=>{dragging=false; steer=0;});
+
+wheel.addEventListener("touchmove", e=>{
+  let x = e.touches[0].clientX;
+  let mid = window.innerWidth/2;
+  steer = (x - mid)/mid; // -1 to 1
+});
+
+// Horn
+function playHorn(){
+  let audio = new Audio("https://www.soundjay.com/transportation/car-horn-1.mp3");
+  audio.play();
+}
 
 // Animation
-function animate() {
-    requestAnimationFrame(animate);
+function animate(){
+  requestAnimationFrame(animate);
 
-    // Speed control
-    if (moveForward) speed = Math.min(speed + 0.02, maxSpeed);
-    else if (moveBackward) speed = Math.max(speed - 0.02, -maxSpeed);
-    else speed *= 0.95;
+  // Speed
+  if(acc && fuel>0) speed = Math.min(speed+0.02,0.8);
+  else if(brake) speed *= 0.9;
+  else speed *= 0.98;
 
-    // Turning
-    if (turnLeft) truck.rotation.y += 0.04;
-    if (turnRight) truck.rotation.y -= 0.04;
+  // Fuel consumption
+  if(speed>0.01) fuel -= 0.02;
 
-    // Movement
-    truck.position.x -= Math.sin(truck.rotation.y) * speed;
-    truck.position.z -= Math.cos(truck.rotation.y) * speed;
+  // Movement
+  truck.rotation.y -= steer*0.03;
+  truck.position.x -= Math.sin(truck.rotation.y)*speed;
+  truck.position.z -= Math.cos(truck.rotation.y)*speed;
 
-    // Camera follow
-    camera.position.x = truck.position.x + Math.sin(truck.rotation.y) * 10;
-    camera.position.z = truck.position.z + Math.cos(truck.rotation.y) * 10;
-    camera.position.y = truck.position.y + 5;
+  // Camera follow
+  camera.position.x = truck.position.x + Math.sin(truck.rotation.y)*10;
+  camera.position.z = truck.position.z + Math.cos(truck.rotation.y)*10;
+  camera.position.y = 6;
+  camera.lookAt(truck.position);
 
-    camera.lookAt(truck.position);
+  // Traffic movement
+  traffic.forEach(car=>{
+    car.position.z += 0.2;
+    if(car.position.z>100) car.position.z=-100;
+  });
 
-    renderer.render(scene, camera);
+  // Mission check
+  if(truck.position.distanceTo(dhaba.position) < 5){
+    alert("Delivery Completed 🚛🎉");
+    dhaba.position.z += 100; // new mission
+  }
+
+  // Update UI
+  document.getElementById("speed").innerText = (speed*100).toFixed(0);
+  document.getElementById("fuel").innerText = fuel.toFixed(0);
+
+  renderer.render(scene,camera);
 }
 
 animate();
 
 // Resize fix
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+window.addEventListener("resize", ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 
